@@ -29,7 +29,7 @@ def update_item(item_id: int, item: Item):
 
 
 @app.get("/data")
-def config():
+def data():
     db_password = os.getenv("DB_PASSWORD")
 
     api_base_url = os.getenv("API_BASE_URL")
