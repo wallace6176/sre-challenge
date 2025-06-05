@@ -89,7 +89,7 @@ jobs:
           kubeconfig: ${{ secrets.KUBECONFIG }}
       - run: terraform init
       - run: terraform fmt -recursive
-      - run: terraform plan -out=tfplan
+      - run: terraform plan -var="image_tag=${{ needs.docker-build.outputs.image_tag }}" -out=tfplan
       - name: Upload tfplan artifact
         uses: actions/upload-artifact@v4
         with:
