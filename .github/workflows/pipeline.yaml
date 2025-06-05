@@ -81,11 +81,13 @@ jobs:
           echo "TF_VERSION=${{ env.TF_VERSION }}" >> $GITHUB_ENV
           echo "HELM_VERSION=${{ env.HELM_VERSION }}" >> $GITHUB_ENV
 
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
       
       - run: terraform init
+
 
       - run: terraform fmt -recursive
       
@@ -142,4 +144,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
+          KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
+
           KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
