@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fast-api-sample.fullname" . }}
+  labels:
+    {{- include "fast-api-sample.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  allocateLoadBalancerNodePorts: false
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+      name: http8080
+  selector:
+    {{- include "fast-api-sample.selectorLabels" . | nindent 4 }}
