@@ -101,7 +101,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   terraform-apply:
-    name: Terraform Plan (Main Only)
+    name: Terraform Apply (Main Only)
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     environment:
