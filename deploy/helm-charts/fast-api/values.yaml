@@ -23,9 +23,6 @@ service:
   port: 8080
   targetPort: 8080
 
-env:
-  featureBranch: preview-dev
-
 envFrom:
   - configMapRef:
       name: api-environment

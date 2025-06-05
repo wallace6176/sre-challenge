@@ -34,6 +34,7 @@ jobs:
 
   docker-build:
     name: Docker Build and Push
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     needs:
       - build
@@ -62,13 +63,15 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
 
-  terraform:
-    name: Terraform Apply (Main Only)
-    if: github.ref == 'refs/heads/main'
+  terraform-plan:
+    name: Terraform Plan (Main Only)
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     needs:
       - build
       - docker-build
+    outputs:
+      plan-name: tfplan
     defaults:
       run:
         working-directory: ./deploy
@@ -80,9 +83,56 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+      - name: Configure Kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
       - run: terraform init
-      - run: terraform plan
-      - run: terraform apply -auto-approve -var="image.tag=${{ needs.docker-build.outputs.image_tag }}"
+      - run: terraform fmt -recursive
+      - run: terraform plan -out=tfplan
+      - name: Upload tfplan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: ./deploy/tfplan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  terraform-apply:
+    name: Terraform Apply (Main Only)
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: prod-deploy
+    needs:
+      - build
+      - docker-build
+      - terraform-plan
+    defaults:
+      run:
+        working-directory: ./deploy
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          echo "TF_VERSION=${{ env.TF_VERSION }}" >> $GITHUB_ENV
+          echo "HELM_VERSION=${{ env.HELM_VERSION }}" >> $GITHUB_ENV
+      - name: Download Terraform plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: ./deploy
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: Configure Kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+      - run: terraform init
+      - run: terraform apply -auto-approve -var="image_tag=${{ needs.docker-build.outputs.image_tag }}" tfplan
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
