@@ -4,6 +4,6 @@ variable "aws_region" {
 }
 
 variable "image_tag" {
-  type    = string
-  
+  type = string
+
 }
