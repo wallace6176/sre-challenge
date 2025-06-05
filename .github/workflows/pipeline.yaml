@@ -81,11 +81,13 @@ jobs:
           echo "TF_VERSION=${{ env.TF_VERSION }}" >> $GITHUB_ENV
           echo "HELM_VERSION=${{ env.HELM_VERSION }}" >> $GITHUB_ENV
 
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
       
       - run: terraform init
+
 
       - run: terraform fmt -recursive
       
@@ -128,8 +130,7 @@ jobs:
         with:
           name: tfplan
           path: ./deploy
-      
-      
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
