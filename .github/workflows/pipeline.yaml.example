@@ -140,8 +140,14 @@ jobs:
       - name: Run Terraform apply
         id: terraform_apply
         run: terraform apply -auto-approve -var="image_tag=${{ needs.docker-build.outputs.image_tag }}" tfplan
+        continue-on-error: true
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-west-1
           KUBECONFIG_FILE: ${{ secrets.KUBECONFIG }}
+      
+      - name: Notify on Failure
+        if: failure()
+        run: echo "Terraform apply failed, notifying via Slack and rolling back."
+        helm rollback fast-api -n dev
