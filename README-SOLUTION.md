@@ -36,6 +36,7 @@ I will also lay out the assumptions and trade-offs made as well as recommendatio
 
 ### 5. Observability
 - I propose a platform-managed Grafana Alloy daemonset and a Prometheus exporter to collect pod metrics and logs and ship to the observability platform in use.
+- I would also propose adding the OpenTelemetry Collector library to the app and instrumenting it to collect traces and runtime metrics.
 
 ### 6. Cost Awareness
 - Push images to an internal image repo to save internet bandwidth during deploy time
@@ -50,7 +51,8 @@ I will also lay out the assumptions and trade-offs made as well as recommendatio
 ## Assumptions
 
 1. Grafana Alloy Agent is already installed as a daemonset on the cluster, as well as a Prometheus Service Monitor that watches all namespaces.
-2. The following CRDs and platform tools are already installed on the cluster:
+2. The Github runner has the appropriate IAM permissions to push the image to Amazon ECR and authenticate with the cluster for Terraform to plan and apply the deployment.
+3. The following CRDs and platform tools are already installed on the cluster:
 	- ExternalDNS
 	- External Secrets Operator
 	- cert-manager with AWSPCAClusterIssuer integrated with an ACM PCA.
@@ -87,6 +89,9 @@ I propose to integrate Sysdig or a similar tool to scan the generated Docker ima
 ## Possible Enhancements
 1. Integrate ExternalDNS and Cert-Manager to the Ingress to expose the app via a trusted URL.
 2. Integrate Kubernetes External Secrets Operator and sync database passwords to the cluster from a central secrets management solution like AWS Secrets Manager or Hashicorp Vault.
+
+## LLM Use
+- I used the GPT-4o model to create an outline of the Python script for the coding assignment in the interest of saving time, after which I improved on it by hand and added the priority scoring function.
 
 ## Contributing
 Feel free to contribute to this repository! I'm open to collaboration as well, I can be reached at [wallace@wallace-gaturu.com](mailto:wallace@wallace-gaturu.com)
