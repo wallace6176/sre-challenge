@@ -2,3 +2,4 @@
 terraform.tfstate*
 tfplan
 __pycache__
+coding_assignment/.idea*
