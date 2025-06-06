@@ -30,19 +30,19 @@ envFrom:
       name: db-password
 
 ingress:
-  enabled: false
-  className: alb
+  enabled: true
+  className: nginx
   annotations:
-    kubernetes.io/ingress.class: alb
+    kubernetes.io/ingress.class: nginx
   hosts:
-    - host: api.eneco.nl
+    - host: api.internal.eneco.nl
       paths:
         - path: /
           pathType: Prefix
   tls:
    - secretName: eneco-api-cert-manager-tls
      hosts:
-       - api.eneco.nl
+       - api.internal.eneco.nl
 
 resources: 
   limits:
